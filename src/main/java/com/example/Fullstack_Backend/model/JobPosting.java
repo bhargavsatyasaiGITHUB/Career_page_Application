@@ -31,7 +31,8 @@ public class JobPosting {
     @Column(name = "status", nullable = false, columnDefinition = "ENUM('HIRING', 'CLOSED') DEFAULT 'HIRING'")
     private JobStatus status = JobStatus.HIRING;
 
-    @ManyToOne
+
+    @OneToOne()
     @JoinColumn(name = "department_id")
     private Department department;
 

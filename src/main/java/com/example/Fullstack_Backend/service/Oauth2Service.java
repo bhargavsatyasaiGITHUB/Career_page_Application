@@ -9,12 +9,16 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.stereotype.Service;
 
 @Service
 public class Oauth2Service {
     @Autowired
     private UserService userService;
+
+
+
 
     @Value("${google.client.id}")
     private String clientId;
@@ -30,7 +34,10 @@ public class Oauth2Service {
 
     @Value("${google.redirect.uri}")
     private String redirectUri;
-    private void createUserFromGoogleAuth(String idTokenString, Payload payload) {
+//    @Autowired
+//    private DefaultAuthenticationEventPublisher authenticationEventPublisher;
+
+    private User createUserFromGoogleAuth(String idTokenString, Payload payload) {
         User user = new User();
         user.setEmail( payload.getEmail());
         user.setFullName(payload.get("name").toString());
@@ -39,12 +46,15 @@ public class Oauth2Service {
         user.setUserRole(UserRoles.USER);
 
 
-        userService.createUser(user);
+       return userService.createUser(user);
 
 
     }
 
-
+public String generateJwtToken(User user) {
+        return null;
+      //  return jwtService.generateToken(user.getUserId());
+}
 
     public String exchangeCodeForToken(String code) throws Exception {
         GoogleTokenResponse tokenResponse = new GoogleAuthorizationCodeTokenRequest(
@@ -65,10 +75,11 @@ public class Oauth2Service {
 
         // Extract payload from ID Token
         Payload payload = idToken.getPayload();
-        createUserFromGoogleAuth(idTokenString, payload);
+      User user=  createUserFromGoogleAuth(idTokenString, payload);
+
         // Here you can perform additional validation and logic if needed
 
-        return idTokenString;
-}
+        return generateJwtToken(user);
+    }
 
 }
